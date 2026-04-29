@@ -1,0 +1,7 @@
+
+# To deploy new code:
+gcloud builds submit --config cloudbuild.yaml
+
+# To update infrastructure:
+cd infrastructure/terraform-cloudrun
+terraform apply -auto-approve

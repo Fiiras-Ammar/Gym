@@ -1,0 +1,64 @@
+steps:
+  # Build Backend
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/backend:latest'
+      - '-f'
+      - 'infrastructure/docker/backend.Dockerfile'
+      - '.'
+  
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/backend:latest']
+  
+  # Build Frontend
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/frontend:latest'
+      - '-f'
+      - 'infrastructure/docker/frontend.Dockerfile'
+      - '.'
+  
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/frontend:latest']
+  
+  # Deploy Backend to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'gym-backend'
+      - '--image'
+      - 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/backend:latest'
+      - '--region'
+      - 'europe-west4'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'MONGO_URI=mongodb+srv://Firas:kVgxCQ0M0nGyrOqS@cluster0.zsqjugz.mongodb.net/macroscanner?appName=Cluster0,DJANGO_SETTINGS_MODULE=macroscanner.settings'
+  
+  # Deploy Frontend to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'gym-frontend'
+      - '--image'
+      - 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/frontend:latest'
+      - '--region'
+      - 'europe-west4'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+
+images:
+  - 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/backend:latest'
+  - 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/frontend:latest'
