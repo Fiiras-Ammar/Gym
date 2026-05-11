@@ -265,11 +265,14 @@ class ConsumptionLogViewSet(viewsets.ModelViewSet):
     def today(self, request):
         """Get today's consumption logs."""
         user = request.user
-        today = timezone.now().date()
+        now = timezone.now()
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
         
         logs = ConsumptionLog.objects.filter(
             user=user,
-            consumed_at__date=today
+            consumed_at__gte=today_start,
+            consumed_at__lte=today_end
         ).order_by('-consumed_at')
         
         serializer = ConsumptionLogWithProductSerializer(logs, many=True)
