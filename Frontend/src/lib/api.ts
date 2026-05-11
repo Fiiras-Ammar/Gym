@@ -106,6 +106,14 @@ export const authApi = {
     return data;
   },
 
+  register: async (email: string, username: string, password: string) => {
+    const data = await apiRequest("/users/", {
+      method: "POST",
+      body: JSON.stringify({ email, username, password }),
+    });
+    return data;
+  },
+
   logout: async () => {
     const { refresh } = getTokens();
     if (refresh) {
