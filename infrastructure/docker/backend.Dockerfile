@@ -12,5 +12,5 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-# Run migrations and start server
-CMD sh -c "python manage.py migrate --noinput && gunicorn --bind 0.0.0.0:8080 macroscanner.wsgi:application"
+# Start server (migrations must be run separately via Cloud Run Jobs)
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--timeout", "60", "macroscanner.wsgi:application"]

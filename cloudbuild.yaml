@@ -25,6 +25,19 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/frontend:latest']
   
+  # Run database migrations as a job
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'jobs'
+      - 'execute'
+      - 'django-migrations'
+      - '--region'
+      - 'europe-west4'
+      - '--wait'
+    allowFailure: true
+
   # Deploy Backend to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
@@ -40,7 +53,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'MONGO_URI=mongodb+srv://Firas:kVgxCQ0M0nGyrOqS@cluster0.zsqjugz.mongodb.net/macroscanner?appName=Cluster0,DJANGO_SETTINGS_MODULE=macroscanner.settings'
+      - 'MONGO_URI=mongodb+srv://Firas:kVgxCQ0M0nGyrOqS@cluster0.zsqjugz.mongodb.net/macroscanner?appName=Cluster0,SECRET_KEY=${_SECRET_KEY}'
   
   # Deploy Frontend to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
