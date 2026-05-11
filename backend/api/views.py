@@ -25,16 +25,20 @@ from .serializers import (
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Custom JWT login that returns user data along with tokens."""
-    
+
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
-        
+
         if response.status_code == 200:
             # Get user from the validated token
-            user = User.objects.get(email=request.data.get('email'))
-            user_data = UserSerializer(user).data
-            response.data['user'] = user_data
-            
+            try:
+                user = User.objects.get(email=request.data.get('email'))
+                user_data = UserSerializer(user).data
+                response.data['user'] = user_data
+            except User.DoesNotExist:
+                # User was authenticated but not found (shouldn't happen)
+                pass
+
         return response
 
 
