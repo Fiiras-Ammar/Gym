@@ -18,6 +18,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,gym-backend-3413
 # Application definition
 ALLOWED_HOSTS = [
     'gym-backend-34130610305.europe-west4.run.app',
+    'gym-backend-eestqfn5ka-ez.a.run.app',
     'gym-frontend-34130610305.europe-west4.run.app',
     'localhost',
     '127.0.0.1',
