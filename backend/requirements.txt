@@ -1,5 +1,6 @@
-# Django
-Django>=4.2,<5.0
+# Django (pinned for djongo compatibility)
+Django>=4.1,<4.2
+sqlparse==0.2.4
 
 # Django REST Framework
 djangorestframework>=3.14.0
