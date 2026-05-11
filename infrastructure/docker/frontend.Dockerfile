@@ -1,5 +1,5 @@
 # 1. Using Node 20 to satisfy the @supabase and glob requirements in your logs
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
