@@ -231,7 +231,7 @@ class ConsumptionLogViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = ConsumptionLog.objects.select_related('product')
+        queryset = ConsumptionLog.objects.all()
         
         if user.is_admin:
             pass
@@ -267,7 +267,7 @@ class ConsumptionLogViewSet(viewsets.ModelViewSet):
         user = request.user
         today = timezone.now().date()
         
-        logs = ConsumptionLog.objects.select_related('product').filter(
+        logs = ConsumptionLog.objects.filter(
             user=user,
             consumed_at__date=today
         ).order_by('-consumed_at')
@@ -298,7 +298,7 @@ class WorkoutDayViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = WorkoutDay.objects.prefetch_related('exercises')
+        queryset = WorkoutDay.objects.all()
         if user.is_admin:
             return queryset.all()
         return queryset.filter(user=user)
@@ -314,7 +314,7 @@ class WorkoutDayExerciseViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = WorkoutDayExercise.objects.select_related('workout_day')
+        queryset = WorkoutDayExercise.objects.all()
         if user.is_admin:
             return queryset.all()
         return queryset.filter(user=user)
@@ -511,7 +511,7 @@ def admin_users(request):
         return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
     
     if request.method == 'GET':
-        users = User.objects.all().prefetch_related('profile', 'roles')
+        users = User.objects.all()
         data = []
         for user in users:
             profile = getattr(user, 'profile', None)
