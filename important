@@ -5,3 +5,13 @@ gcloud builds submit --config cloudbuild.yaml
 # To update infrastructure:
 cd infrastructure/terraform-cloudrun
 terraform apply -auto-approve
+
+
+
+# Set max instances to 0 (stops all traffic)
+gcloud run services update gym-backend --max-instances=0 --region=europe-west4
+gcloud run services update gym-frontend --max-instances=0 --region=europe-west4
+
+# To restart later:
+gcloud run services update gym-backend --max-instances=10 --region=europe-west4
+gcloud run services update gym-frontend --max-instances=10 --region=europe-west4

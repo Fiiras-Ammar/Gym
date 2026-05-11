@@ -53,6 +53,10 @@ export async function apiRequest(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: "Request failed" }));
+    // Specific message for authentication failures
+    if (response.status === 401 && endpoint.includes("/auth/login")) {
+      throw new Error("Wrong password, please try again");
+    }
     throw new Error(error.error || error.detail || "Request failed");
   }
 

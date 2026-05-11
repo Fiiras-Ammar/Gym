@@ -6,8 +6,3 @@ variable "region" {
   type    = string
   default = "us-central1"
 }
-
-variable "db_password" {
-  type      = string
-  sensitive = true
-}
