@@ -25,19 +25,6 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/frontend:latest']
   
-  # Run database migrations as a job
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'jobs'
-      - 'execute'
-      - 'django-migrations'
-      - '--region'
-      - 'europe-west4'
-      - '--wait'
-    allowFailure: true
-
   # Deploy Backend to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
