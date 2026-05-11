@@ -48,6 +48,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        # Allow anyone to register (create user)
+        if self.action == 'create':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
     def get_serializer_class(self):
         if self.action == 'create':
             return UserCreateSerializer
