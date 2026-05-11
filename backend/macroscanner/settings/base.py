@@ -87,8 +87,12 @@ MONGO_URI = os.getenv('MONGO_URI', 'mongodb+srv://Firas:kVgxCQ0M0nGyrOqS@cluster
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'djongo',
+        'NAME': 'macroscanner',
+        'CLIENT': {
+            'host': MONGO_URI,
+            'serverSelectionTimeoutMS': 5000,
+        }
     }
 }
 
