@@ -51,7 +51,8 @@ const Today = () => {
       toast.success(`Logged ${n}${logging.unit} of ${logging.name}`);
       setLogging(null);
       setPickerOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["logs", "today"] });
+      await queryClient.invalidateQueries({ queryKey: ["logs", "today"] });
+      await refetch();
     } catch (error: any) {
       toast.error(error.message || "Failed to log");
     }
@@ -61,7 +62,8 @@ const Today = () => {
     try {
       await logsApi.delete(id);
       toast.success("Removed");
-      queryClient.invalidateQueries({ queryKey: ["logs", "today"] });
+      await queryClient.invalidateQueries({ queryKey: ["logs", "today"] });
+      await refetch();
     } catch (error: any) {
       toast.error(error.message || "Failed to remove");
     }
@@ -74,7 +76,8 @@ const Today = () => {
     try {
       await logsApi.update(editing.id, { amount: n });
       setEditing(null);
-      queryClient.invalidateQueries({ queryKey: ["logs", "today"] });
+      await queryClient.invalidateQueries({ queryKey: ["logs", "today"] });
+      await refetch();
     } catch (error: any) {
       toast.error(error.message || "Failed to update");
     }
