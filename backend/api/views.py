@@ -518,7 +518,7 @@ def admin_users(request):
         data = []
         for user in users:
             profile = getattr(user, 'profile', None)
-            is_admin = user.roles.filter(role='admin').exists()
+            is_admin = any(r.role == 'admin' for r in user.roles.all())
             data.append({
                 'id': str(user.id),
                 'email': user.email,

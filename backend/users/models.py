@@ -18,7 +18,13 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         """Check if user has admin role."""
-        return self.roles.filter(role='admin').exists()
+        try:
+            for role in self.roles.all():
+                if role.role == 'admin':
+                    return True
+            return False
+        except Exception:
+            return False
 
 
 class Profile(models.Model):
