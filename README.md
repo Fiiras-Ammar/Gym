@@ -27,7 +27,8 @@ macro-scanner-kitchen/
 │       └── terraform.tfvars  ← your actual values (gitignored — never commit)
 └── .github/
     └── workflows/
-        └── ci-cd.yml         ← CI/CD pipeline for GitHub Actions
+        ├── ci.yml            ← CI pipeline (Tests and Linting)
+        └── cd.yml            ← CD pipeline (Build and Deploy)
 ```
 
 ## Local setup
@@ -119,12 +120,14 @@ The deployment flow is automated via GitHub Actions. The goal is:
   → `build API & React images` → `push to Artifact Registry`
   → `deploy to Cloud Run` → `new version live`
 
-This is implemented in `.github/workflows/ci-cd.yml`.
+This is implemented in two workflow files: `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
 
 ### How it works
-1. **test-frontend**: Installs npm dependencies, runs linting, runs tests, and builds the static assets.
-2. **test-backend**: Sets up Python, installs pip requirements, and runs Django checks.
-3. **build-and-deploy**: Runs only if tests pass on the main branch. Uses Workload Identity Federation to authenticate with GCP, builds Docker images using the files in `infrastructure/docker/`, pushes them to Artifact Registry, and deploys them to Cloud Run via `gcloud run deploy`.
+1. **CI Pipeline (`ci.yml`)**: Runs on every push or pull request to any branch.
+   - **test-frontend**: Installs npm dependencies, runs linting, tests, and builds static assets.
+   - **test-backend**: Sets up Python, installs dependencies, and runs Django checks.
+2. **CD Pipeline (`cd.yml`)**: Runs automatically only when the CI Pipeline completes successfully on the `main` or `master` branch.
+   - **build-and-deploy**: Uses Workload Identity Federation to authenticate with GCP, builds Docker images, pushes them to Artifact Registry, and deploys them to Cloud Run via `gcloud run deploy`.
 
 ### Required GitHub secrets
 These secrets must be set in your GitHub repository → Settings → Secrets and variables → Actions:
