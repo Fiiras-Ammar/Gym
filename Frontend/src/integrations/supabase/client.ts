@@ -1,7 +1,3 @@
-// Stub file - Supabase replaced by Django backend
-// This file exists for backwards compatibility only
-// All functionality now uses the Django API at @/lib/api
-
 export const supabase = {
   auth: {
     getUser: async () => ({ data: { user: null }, error: null }),
@@ -22,6 +18,7 @@ export const supabase = {
       getPublicUrl: () => ({ data: { publicUrl: "" } }),
     }),
   },
+  
   functions: {
     invoke: async () => ({ error: new Error("Supabase disabled - use Django API") }),
   },
