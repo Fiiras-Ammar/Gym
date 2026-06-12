@@ -84,7 +84,9 @@ WSGI_APPLICATION = 'macroscanner.wsgi.application'
 
 # Database - MongoDB via djongo
 # MongoDB connection string format: mongodb+srv://USER:PASSWORD@HOST/DB_NAME?options
-MONGO_URI = os.getenv('MONGO_URI', 'mongodb+srv://Firas:kVgxCQ0M0nGyrOqS@cluster0.zsqjugz.mongodb.net/macroscanner?appName=Cluster0')
+MONGO_URI = os.getenv('MONGO_URI')
+if not MONGO_URI:
+    raise ValueError('MONGO_URI environment variable is required')
 
 DATABASES = {
     'default': {

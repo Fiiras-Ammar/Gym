@@ -24,7 +24,7 @@ gcloud run deploy gym-backend \
   --region europe-west4 \
   --platform managed \
   --allow-unauthenticated \
-  --set-env-vars="MONGO_URI=mongodb+srv://Firas:kVgxCQ0M0nGyrOqS@cluster0.zsqjugz.mongodb.net/macroscanner?appName=Cluster0,DJANGO_SETTINGS_MODULE=macroscanner.settings"
+  --set-env-vars="MONGO_URI=$MONGO_URI,DJANGO_SETTINGS_MODULE=macroscanner.settings"
 ```
 
 ### Cloud Build (Recommended)
@@ -103,7 +103,7 @@ gcloud run revisions list --service gym-backend --region europe-west4
 
 | Variable | Value | Description |
 |----------|-------|-------------|
-| MONGO_URI | mongodb+srv://Firas:kVgxCQ0M0nGyrOqS@cluster0.zsqjugz.mongodb.net/macroscanner?appName=Cluster0 | MongoDB connection |
+| MONGO_URI | (set via gcloud or environment variable) | MongoDB connection string |
 | DJANGO_SETTINGS_MODULE | macroscanner.settings | Django settings path |
 | DEBUG | False | Production mode |
 | SECRET_KEY | (set via gcloud) | Django secret |

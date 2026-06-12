@@ -10,7 +10,7 @@ gcloud run jobs create django-migrations `
   --region europe-west4 `
   --command python `
   --args manage.py,migrate,--noinput `
-  --set-env-vars="MONGO_URI=mongodb+srv://Firas:kVgxCQ0M0nGyrOqS@cluster0.zsqjugz.mongodb.net/macroscanner?appName=Cluster0,DJANGO_SETTINGS_MODULE=macroscanner.settings.production,SECRET_KEY=${SECRET_KEY}"
+  --set-env-vars="MONGO_URI=${MONGO_URI},DJANGO_SETTINGS_MODULE=macroscanner.settings.production,SECRET_KEY=${SECRET_KEY}"
 
 # Alternative using exec form (if the above doesn't work)
 # gcloud run jobs create django-migrations `

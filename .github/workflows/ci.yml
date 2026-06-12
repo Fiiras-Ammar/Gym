@@ -59,7 +59,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Django checks
-        run: python manage.py check
+        run: python manage.py check --deploy
         env:
           DJANGO_SETTINGS_MODULE: macroscanner.settings
-          MONGO_URI: mongodb://localhost:27017/test
+          SECRET_KEY: test-secret-key-for-ci-only

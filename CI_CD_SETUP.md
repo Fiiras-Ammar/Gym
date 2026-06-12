@@ -44,7 +44,7 @@ Add these in your GitHub repo: `Settings → Secrets and variables → Actions`
 |-------------|-------|
 | `WIF_PROVIDER` | `projects/34130610305/locations/global/workloadIdentityPools/github-pool/providers/github-provider` |
 | `GCP_SERVICE_ACCOUNT` | `github-actions@gymx3-494520.iam.gserviceaccount.com` |
-| `MONGO_URI` | `mongodb+srv://Firas:****@cluster0.zsqjugz.mongodb.net/macroscanner?appName=Cluster0` |
+| `MONGO_URI` | (your MongoDB connection string) |
 
 ## Setup Commands Used
 
