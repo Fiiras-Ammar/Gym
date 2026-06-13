@@ -44,6 +44,14 @@ The Gym & Macro Scanner is split into two primary domains: **Nutrition/Diet Trac
 *   **Weight Logs**: Track bodyweight in kilograms over time with optional notes.
 *   **Progress Indicators**: View weight change metrics showing weight deltas (gain/loss in kg) relative to the previous log.
 
+### 5. Biometric Authentication & Security
+*   **Face ID / Windows Hello Passkeys**: Setup secure, passwordless authentication using standard WebAuthn biometric login (Face ID, Touch ID, Windows Hello).
+*   **Stateless JWT Security**: Highly secure JWT token-based authentication with token rotation (Access/Refresh cycles) to verify identity.
+
+### 6. User Management & Admin Controls
+*   **Profile Customization**: Personalize display names, upload profile avatars/photos directly, and change emails or passwords.
+*   **Administrative Dashboard**: Exclusive control panel for administrators to register new users, toggle admin privileges, view all registered accounts, and cleanly delete users alongside all their personal data.
+
 ---
 
 ## Architecture & Tech Stack
