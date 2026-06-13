@@ -21,34 +21,47 @@ This repository houses the entire application infrastructure, provisioned via Te
 
 ## Application Features
 
-The Gym & Macro Scanner is split into two primary domains: **Nutrition/Diet Tracking** and **Gym/Workout Planning**.
+The Gym & Macro Scanner provides a rich set of features divided into two primary domains: **Nutrition/Diet Tracking** and **Gym/Workout Planning**, backed by secure user controls and automated external integrations.
 
 ### 1. Nutrition & Daily Macro Tracking
-*   **Daily Dashboard (`Today`)**: A visual summary of today's calorie consumption and macronutrient split (Protein, Carbs, Fat) mapped against personalized, editable goals. Includes real-time progress bars and calorie burners.
-*   **Kitchen Inventory (`Kitchen`)**: A user-managed registry of food items. Users can search their kitchen, add new ingredients, edit macro/calorie values per 100g/ml, upload product images, and remove products they no longer use.
-*   **Meal Logging**: Easily log consumption logs of any item in your Kitchen, choosing specific quantities (in grams or milliliters) with automatic macro calculation based on the amount consumed.
-*   **14-Day History Details**: View a chronological history of the last 14 days, collapsing/expanding daily reports to inspect specific meals and overall nutritional metrics.
+*   **Daily Dashboard (`Today`)**: A visually engaging summary dashboard displaying today's calorie consumption mapped against a personalized, editable daily goal, complete with interactive progress bars and color-coded status tracks.
+*   **Macronutrient Goal Bars**: Monitored targets for Protein, Carbs, and Fat utilizing custom, matching progress bars to track daily macros at a glance.
+*   **Interactive Daily Meal Logs**: View a chronologically grouped log of all items eaten today. Displays the product name, amount consumed (in grams or milliliters), calculated calorie count, and log timestamp.
+*   **Inline Log Editing & Deletion**: Click on any logged meal to edit its consumption weight in a modal instantly, recalculating daily macros on-the-fly. Remove logs easily using an inline delete trigger.
+*   **14-Day History Details**: Under the `History` page, browse a 14-day history, enabling users to expand/collapse daily reports to inspect specific meals and overall historical progress.
 
-### 2. Barcode Scanning & Food Lookup API
-*   **Camera Barcode Scanner**: Built-in support to scan packaged product barcodes using your device camera, instantly retrieving nutrition facts from **Open Food Facts**.
-*   **Produce Lookup**: An intelligent search tool for raw produce (fruit, vegetables, meats) that queries the **USDA FoodData Central** database.
-*   **Manual Entry**: Fallback option to quickly add custom items by specifying macros and details.
+### 2. Kitchen Inventory Management (`Kitchen`)
+*   **User Kitchen Registry**: A personal pantry database where you save frequently eaten foods. Each entry keeps track of calories, macros, measurement unit (g or ml), and custom images.
+*   **Calorie Density Calculations**: All kitchen items store nutritional facts standardized per 100g or 100ml. The app automatically calculates exact calories and macros consumed when logging any customized portion.
+*   **Pantry Search**: Live filtering search bar to instantly query items in the kitchen by name or brand.
+*   **Product Editor & Image Uploader**: Edit any kitchen product's name, brand, macros, and unit. Includes a secure file uploader supporting custom product images (up to 5MB) stored on the backend.
+*   **Rapid Meal Logger**: Click any kitchen item to open a quick modal, input the portion size, and immediately log it to your day.
 
-### 3. Workout Splits & Exercise Planner
-*   **Custom Splits & Days**: Design workout weeks (e.g., Push, Pull, Legs) and group days under specific training categories.
-*   **Exercise database Search**: Built-in integration with **ExerciseDB** allowing users to search thousands of exercises by name, equipment type, target muscle, or body part.
-*   **Tutorial Instructions & Videos**: View step-by-step guides, anatomy tags, and GIF animations/videos for every exercise to ensure proper form.
-*   **Workout Completion**: Log active workout completions daily to track consistency over time.
+### 3. Barcode Scanning & Food Database Lookup
+*   **Camera Barcode Scanner**: Built-in camera scanning overlay utilizing the device camera to read packaged product barcodes.
+*   **Open Food Facts API Lookup**: Queries the community-driven Open Food Facts database using barcodes to retrieve ingredient names, brands, images, and full macro breakdowns.
+*   **Smart Scan Fallback**: If a scanned barcode is not found in Open Food Facts, the app alerts the user and pre-fills the barcode value into the Custom Product tab, allowing rapid manual registry.
+*   **USDA FoodData Central Lookup**: Query fresh produce (fruits, vegetables, meat) by name under the "Produce" tab, retrieving official government nutritional values automatically.
+*   **Custom Product Creation**: Easily add custom items manually, specifying portion metrics (per 100g/ml) and custom names.
+*   **Interactive Preview Cards**: Displays structured nutritional panels with colored macro cards for validation before adding items to the kitchen registry.
 
-### 4. Bodyweight Logging
-*   **Weight Logs**: Track bodyweight in kilograms over time with optional notes.
+### 4. Workout Splits & Exercise Planner
+*   **Weekly Gym Splits**: Define custom training days (e.g., "Monday - Push", "Leg Day") and schedule them to specific weekdays or leave them unscheduled.
+*   **Split Grouping Categories**: Organize workout days under custom workout categories (e.g., Push, Pull, Legs, Chest, Cardio) with color tags.
+*   **ExerciseDB API Search**: Search a global exercise database with thousands of activities, filterable by name, target muscle, or equipment type.
+*   **GIF & Video Instruction Guides**: Exercises in your workouts display live autoplay looping videos/GIFs showing correct exercise mechanics.
+*   **Interactive Step-by-Step Tutorials**: Click the Book icon on any exercise to read structured, numbered instructions, body part tags, target muscles, and equipment requirements.
+*   **Log Workout Completions**: Mark an active workout day as completed with a single tap, logging timestamp metrics to track consistency.
+
+### 5. Bodyweight Logging
+*   **Weight Logs**: Track bodyweight history in kilograms over time with optional notes.
 *   **Progress Indicators**: View weight change metrics showing weight deltas (gain/loss in kg) relative to the previous log.
 
-### 5. Biometric Authentication & Security
+### 6. Biometric Authentication & Security
 *   **Face ID / Windows Hello Passkeys**: Setup secure, passwordless authentication using standard WebAuthn biometric login (Face ID, Touch ID, Windows Hello).
 *   **Stateless JWT Security**: Highly secure JWT token-based authentication with token rotation (Access/Refresh cycles) to verify identity.
 
-### 6. User Management & Admin Controls
+### 7. User Management & Admin Controls
 *   **Profile Customization**: Personalize display names, upload profile avatars/photos directly, and change emails or passwords.
 *   **Administrative Dashboard**: Exclusive control panel for administrators to register new users, toggle admin privileges, view all registered accounts, and cleanly delete users alongside all their personal data.
 
