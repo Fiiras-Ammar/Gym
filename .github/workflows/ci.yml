@@ -63,3 +63,4 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: macroscanner.settings
           SECRET_KEY: test-secret-key-for-ci-only
+          MONGO_URI: mongodb://localhost:27017/macroscanner

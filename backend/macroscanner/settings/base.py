@@ -82,11 +82,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'macroscanner.wsgi.application'
 
-# Database - MongoDB via djongo
-# MongoDB connection string format: mongodb+srv://USER:PASSWORD@HOST/DB_NAME?options
 MONGO_URI = os.getenv('MONGO_URI')
 if not MONGO_URI:
-    raise ValueError('MONGO_URI environment variable is required')
+    # Fallback to local MongoDB URI for development and CI/testing if not specified.
+    # Production environments must specify MONGO_URI explicitly.
+    if os.getenv('DJANGO_SETTINGS_MODULE') == 'macroscanner.settings.production' or not DEBUG:
+        raise ValueError('MONGO_URI environment variable is required')
+    MONGO_URI = 'mongodb://localhost:27017/macroscanner'
+
 
 DATABASES = {
     'default': {

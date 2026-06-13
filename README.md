@@ -1,145 +1,261 @@
-# Macro Scanner / Gym Infra
-Infrastructure for the Macro Scanner / Gym app — Docker containerization, Google Cloud Run orchestration, and cloud provisioning via Terraform on Google Cloud Platform (GCP).
+# Gym & Macro Scanner Portal
 
-## Architecture
-| Component | Technology | GCP Service |
-| :--- | :--- | :--- |
-| React frontend | Docker container | Cloud Run |
-| Django API | Docker container | Cloud Run |
-| Database | MongoDB / SQLite | DBaaS (via MONGO_URI) |
-| Container registry | — | Artifact Registry |
+A full-stack health and fitness ecosystem designed to track daily nutritional intake, manage custom gym splits, log bodyweight, and query global food and exercise databases. 
 
-All core infrastructure is provisioned with a single command: `terraform apply`
+This repository houses the entire application infrastructure, provisioned via Terraform, containerized using Docker, deployed to Google Cloud Run, and automated via GitHub Actions CI/CD.
 
-## Folder structure
+---
+
+## Table of Contents
+1. [Application Features](#application-features)
+2. [Architecture & Tech Stack](#architecture--tech-stack)
+3. [Folder Structure](#folder-structure)
+4. [Third-Party API Integrations](#third-party-api-integrations)
+5. [Database Schema](#database-schema)
+6. [Local Development Setup](#local-development-setup)
+7. [Cloud Infrastructure (GCP & Terraform)](#cloud-infrastructure-gcp--terraform)
+8. [CI/CD Pipeline (GitHub Actions)](#cicd-pipeline-github-actions)
+9. [Teardown Guide](#teardown-guide)
+
+---
+
+## Application Features
+
+The Gym & Macro Scanner is split into two primary domains: **Nutrition/Diet Tracking** and **Gym/Workout Planning**.
+
+### 1. Nutrition & Daily Macro Tracking
+*   **Daily Dashboard (`Today`)**: A visual summary of today's calorie consumption and macronutrient split (Protein, Carbs, Fat) mapped against personalized, editable goals. Includes real-time progress bars and calorie burners.
+*   **Kitchen Inventory (`Kitchen`)**: A user-managed registry of food items. Users can search their kitchen, add new ingredients, edit macro/calorie values per 100g/ml, upload product images, and remove products they no longer use.
+*   **Meal Logging**: Easily log consumption logs of any item in your Kitchen, choosing specific quantities (in grams or milliliters) with automatic macro calculation based on the amount consumed.
+*   **14-Day History Details**: View a chronological history of the last 14 days, collapsing/expanding daily reports to inspect specific meals and overall nutritional metrics.
+
+### 2. Barcode Scanning & Food Lookup API
+*   **Camera Barcode Scanner**: Built-in support to scan packaged product barcodes using your device camera, instantly retrieving nutrition facts from **Open Food Facts**.
+*   **Produce Lookup**: An intelligent search tool for raw produce (fruit, vegetables, meats) that queries the **USDA FoodData Central** database.
+*   **Manual Entry**: Fallback option to quickly add custom items by specifying macros and details.
+
+### 3. Workout Splits & Exercise Planner
+*   **Custom Splits & Days**: Design workout weeks (e.g., Push, Pull, Legs) and group days under specific training categories.
+*   **Exercise database Search**: Built-in integration with **ExerciseDB** allowing users to search thousands of exercises by name, equipment type, target muscle, or body part.
+*   **Tutorial Instructions & Videos**: View step-by-step guides, anatomy tags, and GIF animations/videos for every exercise to ensure proper form.
+*   **Workout Completion**: Log active workout completions daily to track consistency over time.
+
+### 4. Bodyweight Logging
+*   **Weight Logs**: Track bodyweight in kilograms over time with optional notes.
+*   **Progress Indicators**: View weight change metrics showing weight deltas (gain/loss in kg) relative to the previous log.
+
+---
+
+## Architecture & Tech Stack
+
+```
+                     ┌────────────────────────┐
+                     │     React Frontend     │ (Vite, TypeScript, Tailwind)
+                     └───────────┬────────────┘
+                                 │ HTTP / JWT
+                                 ▼
+                     ┌────────────────────────┐
+                     │   Django API Gateway   │ (Python, DRF, JWT Auth)
+                     └───────────┬────────────┘
+                                 │
+         ┌───────────────────────┼───────────────────────┐
+         ▼                       ▼                       ▼
+ ┌───────────────┐       ┌───────────────┐       ┌───────────────┐
+ │  Local SQLite │       │ Open Food     │       │  ExerciseDB   │
+ │   / MongoDB   │       │ Facts & USDA  │       │     & USDA    │
+ └───────────────┘       └───────────────┘       └───────────────┘
+```
+
+*   **Frontend**: 
+    *   **React 18** with **TypeScript**
+    *   **Vite** for rapid tooling and build times
+    *   **Tailwind CSS** & **shadcn/ui** (custom UI primitives like Tabs, Dialogs, Select, Badges)
+    *   **TanStack Query (React Query v5)** for robust client-side state caching
+    *   **Lucide React** for modern iconography
+*   **Backend**: 
+    *   **Django 5** with **Django REST Framework (DRF)**
+    *   **SimpleJWT** for secure, token-based stateless authentication
+    *   Flexible database settings (supports local SQLite or MongoDB Atlas cloud databases)
+*   **Infrastructure**: 
+    *   **Google Cloud Run**: Serverless container hosting for both frontend and backend
+    *   **Artifact Registry**: Secure hosting for Docker images
+    *   **Terraform**: Infrastructure-as-Code to provision and destroy GCP assets cleanly
+    *   **GitHub Actions**: CI/CD pipeline executing tests and automated deployments
+
+---
+
+## Folder Structure
+
 ```text
 macro-scanner-kitchen/
 ├── backend/                  ← Django backend API
-├── Frontend/                 ← React frontend (Vite)
-├── infrastructure/           ← Terraform & Docker setup
-│   ├── docker/               ← Dockerfiles for backend and frontend
+│   ├── api/                  ← Serializers, endpoints, and external API integrations
+│   ├── macroscanner/          # Main Django settings & routing
+│   ├── nutrition/            ← Products, consumption logs, and macro goals models
+│   ├── users/                ← User auth, profiles, roles models & signals
+│   ├── weight/               ← Weight log tracking models
+│   └── workouts/             ← Workout splits, exercises, and completions models
+├── Frontend/                 ← React frontend
+│   ├── src/
+│   │   ├── components/       ← Reusable UI blocks (MacroBar, Layout, dialogs)
+│   │   ├── pages/            ← Application views (Today, Workouts, Weight, Kitchen, Add...)
+│   │   ├── lib/              ← API client, helpers, and state mapping
+│   │   └── hooks/            ← Custom React Hooks
+├── infrastructure/           ← IaC and container files
+│   ├── docker/               ← Production Dockerfiles
 │   │   ├── backend.Dockerfile
 │   │   └── frontend.Dockerfile
-│   └── terraform-cloudrun/   ← Terraform — provisions GCP infrastructure
-│       ├── main.tf           ← all GCP resources defined here
-│       ├── variables.tf      ← input variables
-│       ├── outputs.tf        ← Service URLs
-│       └── terraform.tfvars  ← your actual values (gitignored — never commit)
+│   └── terraform-cloudrun/   ← GCP terraform modules (main.tf, outputs.tf, variables.tf)
 └── .github/
-    └── workflows/
-        ├── ci.yml            ← CI pipeline (Tests and Linting)
-        └── cd.yml            ← CD pipeline (Build and Deploy)
+    └── workflows/            ← CI/CD pipeline automation
+        ├── ci.yml            ← Run linter, verify build, run tests
+        └── cd.yml            ← Authenticate, build images, and deploy to Cloud Run
 ```
 
-## Local setup
-**Prerequisites**
-- Node.js (v20) installed
-- Python (3.11) installed
+---
 
-**Backend**
-1. Navigate to the `backend/` directory.
-2. Create a virtual environment and install dependencies:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-3. Run migrations and start the server:
-   ```bash
-   python manage.py migrate
-   python manage.py runserver
-   ```
-   The API will be available at `http://localhost:8000`.
+## Third-Party API Integrations
 
-**Frontend**
-1. Navigate to the `Frontend/` directory.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-   The frontend will be available at `http://localhost:5173`.
+The system interfaces with three external databases:
 
-## Cloud setup — GCP via Terraform
-All Google Cloud infrastructure is defined as code in the `infrastructure/terraform-cloudrun/` folder and provisioned with a single Terraform command.
+1.  **Open Food Facts API**: 
+    *   Used for: Packaged product barcode lookups.
+    *   Endpoint: `https://world.openfoodfacts.org/api/v0/product/{barcode}.json`
+2.  **USDA FoodData Central API**:
+    *   Used for: Name-based searches of fresh/unbranded produce items.
+    *   Endpoint: `https://api.nal.usda.gov/fdc/v1/foods/search`
+3.  **ExerciseDB API**:
+    *   Used for: Fitness database search and exercise instructions.
+    *   Endpoint: `https://oss.exercisedb.dev/api/v1`
+
+---
+
+## Database Schema
+
+The database model matches the following structure:
+
+*   **users**: Custom user model with login credentials.
+*   **profiles**: Display names and user avatars.
+*   **user_roles**: Determines user access privileges (Admin/User).
+*   **settings**: Keeps track of daily nutritional targets (Calories, Protein, Carbs, Fat).
+*   **products**: Defines items in the kitchen (nutrition info per 100g/ml, barcode, brand, name, image).
+*   **consumption_logs**: Connects users to products eaten at specific dates/times.
+*   **exercise_categories**: Muscle/split categories (Push, Pull, Legs).
+*   **workout_days**: Individual workout days defined in a split.
+*   **workout_day_exercises**: Sourced exercises assigned to workout days (stores External ExerciseDB reference, name, tutorial video link, and position).
+*   **workout_completions**: Timestamps recording when a workout day was marked as completed.
+*   **weight_logs**: Bodyweight logs recorded by the user.
+
+---
+
+## Local Development Setup
+
+### Prerequisites
+*   Node.js (v20)
+*   Python (3.11)
+*   Docker (Optional, for containerized testing)
+
+### 1. Backend Setup
+1.  Navigate to the `backend/` directory:
+    ```bash
+    cd backend
+    ```
+2.  Create a virtual environment and install packages:
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
+3.  Set up environment configurations:
+    ```bash
+    cp .env.example .env
+    ```
+    *(Open `.env` and fill out your database settings, keys, and USDA/ExerciseDB parameters if needed)*
+4.  Run migrations and start the server:
+    ```bash
+    python manage.py migrate
+    python manage.py runserver
+    ```
+    The API runs at `http://localhost:8000`.
+
+### 2. Frontend Setup
+1.  Navigate to the `Frontend/` directory:
+    ```bash
+    cd Frontend
+    ```
+2.  Install packages:
+    ```bash
+    npm install
+    ```
+3.  Start the Vite dev server:
+    ```bash
+    npm run dev
+    ```
+    The web app runs at `http://localhost:5173`. Make sure the frontend `.env` points to the API:
+    ```text
+    VITE_API_URL=http://localhost:8000/api
+    ```
+
+---
+
+## Cloud Infrastructure (GCP & Terraform)
+
+All cloud resources are provisioned on Google Cloud Platform via Terraform.
 
 ### Architecture provisioned
-| Resource | GCP Service | Purpose |
-| :--- | :--- | :--- |
-| Project Services | APIs | Enables Cloud Run, Artifact Registry, Cloud Build |
-| Container Registry | Artifact Registry | `gym-repo` stores Docker images |
-| Backend Service | Cloud Run | `gym-backend` Runs the Django API |
-| Frontend Service | Cloud Run | `gym-frontend` Runs the React app |
-| IAM Policies | Cloud Run IAM | Makes services publicly accessible |
+*   **Artifact Registry**: `gym-repo` repository for Docker images.
+*   **Cloud Run (Frontend)**: Runs the React web application container.
+*   **Cloud Run (Backend)**: Runs the Django REST API container.
+*   **IAM Policies**: Cloud Run service access bindings.
 
-**Prerequisites**
-- Terraform installed and on PATH
-- Google Cloud CLI (gcloud) installed and authenticated:
-  ```bash
-  gcloud auth login
-  gcloud config set project gymx3-494520
-  ```
+### Prerequisites
+*   Terraform installed
+*   Google Cloud SDK authenticated:
+    ```bash
+    gcloud auth login
+    gcloud config set project gymx3-494520
+    ```
 
-### First time setup
-Create `infrastructure/terraform-cloudrun/terraform.tfvars` with your values — this file is gitignored and must never be committed:
+### Provisioning Command
+Create `infrastructure/terraform-cloudrun/terraform.tfvars`:
 ```hcl
 project_id = "gymx3-494520"
 region     = "europe-west4"
 ```
-
-### Provision all infrastructure — one command
+Execute the provisioning plan:
 ```bash
 cd infrastructure/terraform-cloudrun
-terraform init      # first time only — downloads GCP provider
-terraform plan      # dry run — shows what will be created
-terraform apply     # provisions everything on GCP (~5 minutes)
+terraform init
+terraform plan
+terraform apply
 ```
 
-### Push Docker images to Artifact Registry (Manual Approach)
-Before Cloud Run can start, the images must exist in Artifact Registry. (This is automated by CI/CD, but here is the manual flow):
-```bash
-gcloud auth configure-docker europe-west4-docker.pkg.dev --quiet
+---
 
-# Build Images
-docker build -t europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/backend:latest -f infrastructure/docker/backend.Dockerfile .
-docker build -t europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/frontend:latest -f infrastructure/docker/frontend.Dockerfile .
+## CI/CD Pipeline (GitHub Actions)
 
-# Push Images
-docker push europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/backend:latest
-docker push europe-west4-docker.pkg.dev/gymx3-494520/gym-repo/frontend:latest
-```
+Deployments are automated upon code changes pushed to the primary branch.
 
-## CI/CD pipeline
-The deployment flow is automated via GitHub Actions. The goal is:
+1.  **CI Pipeline (`ci.yml`)**:
+    *   **Frontend**: Installs, lints (`eslint`), runs tests (`vitest`), and tests compilation.
+    *   **Backend**: Installs dependencies and runs Django project checks (`python manage.py check`).
+2.  **CD Pipeline (`cd.yml`)**:
+    *   Triggered on successful CI test completion on `main` branch.
+    *   Logs in via Workload Identity Federation (WIF).
+    *   Builds frontend and backend containers via Docker.
+    *   Pushes to Artifact Registry and redeploys Cloud Run services.
 
-`push to main` → `GitHub Actions triggers`
-  → `tests run (Frontend & Backend)`
-  → `build API & React images` → `push to Artifact Registry`
-  → `deploy to Cloud Run` → `new version live`
+### GitHub Actions Secrets
+Configure these variables in GitHub repository settings:
+*   `WIF_PROVIDER`: Path to Workload Identity Federation provider.
+*   `GCP_SERVICE_ACCOUNT`: Service account deploying the stack.
+*   `MONGO_URI`: Production MongoDB database URI.
 
-This is implemented in two workflow files: `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
+---
 
-### How it works
-1. **CI Pipeline (`ci.yml`)**: Runs on every push or pull request to any branch.
-   - **test-frontend**: Installs npm dependencies, runs linting, tests, and builds static assets.
-   - **test-backend**: Sets up Python, installs dependencies, and runs Django checks.
-2. **CD Pipeline (`cd.yml`)**: Runs automatically only when the CI Pipeline completes successfully on the `main` or `master` branch.
-   - **build-and-deploy**: Uses Workload Identity Federation to authenticate with GCP, builds Docker images, pushes them to Artifact Registry, and deploys them to Cloud Run via `gcloud run deploy`.
+## Teardown Guide
 
-### Required GitHub secrets
-These secrets must be set in your GitHub repository → Settings → Secrets and variables → Actions:
-
-| Secret | Description |
-| :--- | :--- |
-| `WIF_PROVIDER` | The Workload Identity Federation provider string (e.g., `projects/12345/locations/global/workloadIdentityPools/...`) |
-| `GCP_SERVICE_ACCOUNT` | The service account email used by GitHub Actions to deploy |
-| `MONGO_URI` | The connection string to the MongoDB database |
-
-## Tearing down GCP resources
-To remove all provisioned GCP resources (Cloud Run services, Artifact Registry, etc.) and stop incurring costs:
+To clean up all deployed Google Cloud resources and avoid charges:
 
 ```bash
 cd infrastructure/terraform-cloudrun
